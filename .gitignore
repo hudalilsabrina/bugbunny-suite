@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+config.toml
+accounts.txt
+data/
+*.log
+inference_keys.txt

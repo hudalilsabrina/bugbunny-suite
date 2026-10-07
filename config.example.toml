@@ -1,0 +1,3 @@
+# BugBunny.ai Suite - contoh config (salin ke config.toml)
+[api]
+tempmail_base = "http://localhost:8080/api"
