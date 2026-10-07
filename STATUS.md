@@ -1,24 +1,59 @@
 # BugBunny.ai Suite — Status
 
+## ⚠️ UPDATE PENTING (07 Okt 2026): promo $5 sudah DIMATIKAN
+
+BugBunny **menghentikan** free trial credit $5. Bukti dari 44 akun kita:
+
+| Waktu daftar (UTC) | Akun | Hasil |
+|---|---|---|
+| 07 Okt 01:25–02:00 | 23 | ✅ **$5** (`inference_trial_credit`) |
+| 07 Okt 14:38–15:01 | 21 | ❌ **$0** (`credit_buckets: []`) |
+
+- Domain sama (`mcgg.me`) → **bukan** masalah domain
+- Re-check berulang → tetap $0 (bukan delay)
+- Promo dimatikan antara 02:00–14:38 (07 Okt 2026)
+- **Akun baru tetap dapat API key `bbi_...`, tapi TANPA kredit**
+
+### 💰 Aset yang masih AMAN
+```
+23 akun × $5 = $115   (expires_at 9999-12-31 → tidak expire)
+21 akun × $0 = $0     (dibuat setelah promo mati)
+```
+Semua 44 akun tetap punya API key aktif.
+
 ## ✅ SELESAI & TERVERIFIKASI
 
 | Item | Hasil |
 |---|---|
 | Recon (tanpa proxy) | `bugbunny-recon/FINDINGS.md` |
 | Auth | **magic link** (email) / Google OAuth — **tanpa captcha** |
-| Harvester | `./run.sh harvest` → akun + **$5 inference credit** + API key `bbi_...` |
+| Harvester | `./run.sh harvest` → akun + API key (kredit tergantung promo) |
 | Batch | `./run.sh batch <n>` (backoff rate-limit) |
-| Test chat | `./run.sh test` → **valid** (glm-5.3-flash) |
-| Sync 9router | `./run.sh sync` → **4/4 valid** |
-| Akun | 4 akun × $5 = **$20 kredit inference** |
+| Test chat | `./run.sh test` → valid saat server inference up (kadang 502) |
+| Sync 9router | `./run.sh sync` → ✅ |
 
-## 💵 KREDIT $5 (ini yang dimaksud "register dapat $5")
+## 🔧 Catatan teknis (penting)
 
-Ternyata $5 itu **nyata & bisa dipakai** — tapi khusus **Inference** (menu
-"Inference" BETA di dashboard), bukan Audit Console:
+1. **Endpoint balance** — pakai API utama, BUKAN subdomain inference:
+   - ✅ `https://api.bugbunny.ai/api/v1/inference/balance`
+   - ❌ `https://inference.bugbunny.ai/v1/balance` (404)
+2. **Header `User-Agent` WAJIB** — tanpa UA → **403 Forbidden**
+   (urllib default diblok; curl jalan karena punya UA).
+3. **`buffer_usd: 5.0` ≠ saldo** — di `/billing/usage-balance` (Audit Console):
+   `{"available_usd":0.0,"buffer_usd":5.0,"can_run_llm":false}`.
+   `buffer_usd` = plafon/buffer, **bukan kredit**. Saldo nyata = `available_usd`
+   di `/inference/balance`.
+4. **Chat kadang 502** (Cloudflare) — server inference kadang down (transient).
+   `/v1/models` tetap 200.
+
+## 💵 KREDIT $5 (yang dimaksud "register dapat $5")
+
+$5 itu **nyata & bisa dipakai** — khusus **Inference** (menu "Inference" BETA di
+dashboard), bukan Audit Console. Berlaku untuk akun yang daftar **sebelum**
+promo dimatikan:
 
 ```
-GET  /inference/balance ->
+GET  api.bugbunny.ai/api/v1/inference/balance ->
 {"available_usd":5.0,"trial_remaining_usd":5.0,"inference_account_enabled":true,
  "credit_buckets":[{"type":"inference_trial_credit","amount_usd":5.0,
                     "remaining_usd":5.0,"expires_at":"9999-12-31T00:00:00"}]}

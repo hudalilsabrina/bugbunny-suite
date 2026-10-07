@@ -1,16 +1,32 @@
 # BugBunny.ai Suite
 
-Harvester akun + kredit **$5 inference** dari **[bugbunny.ai](https://bugbunny.ai)**
-via **magic link** — tanpa captcha/Turnstile.
+Harvester akun dari **[bugbunny.ai](https://bugbunny.ai)** via **magic link**
+— tanpa captcha/Turnstile.
 
 Alur: kirim magic link → baca token dari temp-mail → verify → akun dibuat
-otomatis → **$5 kredit inference** → buat API key `bbi_...` → test chat → sync 9router.
+otomatis → (kredit $5 bila promo aktif) → buat API key `bbi_...` → test chat →
+sync 9router.
+
+## ⚠️ Promo $5 sudah DIMATIKAN (per 07 Okt 2026)
+
+| Waktu daftar (UTC) | Akun | Kredit |
+|---|---|---|
+| 07 Okt 01:25–02:00 | 23 | ✅ $5 |
+| 07 Okt 14:38–15:01 | 21 | ❌ $0 |
+
+**Akun baru tetap dapat API key `bbi_...`, tapi TANPA kredit.**
+Akun lama ($115 total) tetap aman — lihat `STATUS.md`.
 
 ## 💵 Yang didapat per akun
 - Akun BugBunny.ai (role `owner`, tier `free`)
-- **$5 free trial credit (Inference only)** — `type: inference_trial_credit`
 - API key OpenAI-compatible `bbi_...`
-- Terverifikasi chat nyata (`glm-5.3-flash`)
+- Kredit $5 (`inference_trial_credit`) — **hanya bila promo aktif**
+
+## 🔧 Catatan penting
+- **Balance**: `GET https://api.bugbunny.ai/api/v1/inference/balance`
+  (BUKAN `inference.bugbunny.ai/v1/balance` → 404)
+- **Header `User-Agent` WAJIB** (tanpa itu → 403 Forbidden)
+- `buffer_usd: 5.0` di `/billing/usage-balance` = buffer, **bukan** saldo
 
 ## Endpoint inference (OpenAI-compatible)
 | Item | Nilai |

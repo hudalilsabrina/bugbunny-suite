@@ -81,6 +81,37 @@ def cmd_report():
     C.print(t)
 
 
+def cmd_balance():
+    """Cek kredit inference tiap akun (available_usd + jumlah bucket)."""
+    accs = bb.parse_accounts()
+    if not accs:
+        C.print("[yellow]Belum ada akun.[/]")
+        return
+    C.print(f"[cyan]Cek balance {len(accs)} akun...[/]")
+    t = Table(box=box.ROUNDED, title="Inference balance")
+    t.add_column("Email", style="cyan")
+    t.add_column("USD", style="green", justify="right")
+    t.add_column("Bucket", justify="right")
+    t.add_column("Status")
+    total = 0.0
+    for a in accs:
+        try:
+            st, raw = bb.inference_balance(a["access_token"])
+            b = json.loads(raw) if isinstance(raw, str) and raw.strip().startswith("{") else None
+            if isinstance(b, dict):
+                av = b.get("available_usd") or 0
+                nb = len(b.get("credit_buckets", []))
+                total += av
+                t.add_row(a["email"][:30], f"${av:.4f}", str(nb),
+                          "[green]OK[/]" if av > 0 else "[yellow]$0[/]")
+            else:
+                t.add_row(a["email"][:30], "-", "-", f"[red]{str(raw)[:24]}[/]")
+        except Exception as e:
+            t.add_row(a["email"][:30], "-", "-", f"[red]{str(e)[:24]}[/]")
+    C.print(t)
+    C.print(f"[bold]TOTAL: ${total:.2f}[/]")
+
+
 def cmd_sync():
     from src import router9
     keys = bb.parse_inference_keys()
@@ -104,6 +135,7 @@ def main():
     b = sub.add_parser("batch"); b.add_argument("n", type=int); b.add_argument("--domain", default="mcgg.me")
     sub.add_parser("test")
     sub.add_parser("report")
+    sub.add_parser("balance")
     sub.add_parser("sync")
     p = sub.add_parser("pilot")
     p.add_argument("--first", required=True); p.add_argument("--last", required=True)
@@ -118,6 +150,8 @@ def main():
         cmd_test()
     elif a.cmd == "report":
         cmd_report()
+    elif a.cmd == "balance":
+        cmd_balance()
     elif a.cmd == "sync":
         cmd_sync()
     elif a.cmd == "pilot":
